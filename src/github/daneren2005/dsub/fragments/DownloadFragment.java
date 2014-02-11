@@ -7,12 +7,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.view.ContextMenu;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -109,6 +111,7 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 	private boolean seekInProgress = false;
 	private boolean startFlipped = false;
 	private boolean scrollWhenLoaded = false;
+	private PowerManager.WakeLock wakeLock = null;
 
 	/**
 	 * Called when the activity is first created.
@@ -758,6 +761,12 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 		if(currentPlaying == null && downloadService != null && currentPlaying == downloadService.getCurrentPlaying()) {
 			getImageLoader().loadImage(albumArtImageView, null, true, false);
 		}
+
+		if(currentPlaying != null && currentPlaying.getSong().isVideo() && wakeLock == null) {
+			PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+			wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, toString());
+			wakeLock.acquire();
+		}
 	}
 
 	@Override
@@ -766,6 +775,10 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 		executorService.shutdown();
 		if (visualizerView != null && visualizerView.isActive()) {
 			visualizerView.setActive(false);
+		}
+		if(wakeLock != null) {
+			wakeLock.release();
+			wakeLock = null;
 		}
 	}
 	
@@ -1078,6 +1091,13 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 				currentPlaying = downloadService.getCurrentPlaying();
 				currentPlayingIndex = downloadService.getCurrentPlayingIndex() + 1;
 				currentPlayingSize = downloadService.size();
+
+				if(currentPlaying != null && currentPlaying.getSong().isVideo()) {
+					PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+					wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, toString());
+					wakeLock.acquire();
+				}
+
 				return null;
 			}
 

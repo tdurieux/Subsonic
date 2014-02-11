@@ -18,6 +18,8 @@
  */
 package github.daneren2005.dsub.service;
 
+import android.view.SurfaceView;
+
 import java.util.List;
 
 import github.daneren2005.dsub.audiofx.EqualizerController;
@@ -141,4 +143,6 @@ public interface DownloadService {
 	void setVolume(float volume);
 	
 	void swap(boolean mainList, int from, int to);
+
+	void setSurfaceView(SurfaceView s);
 }
