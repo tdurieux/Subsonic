@@ -105,7 +105,7 @@ public class ChromeCastController extends RemoteController {
 
 		Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder(castDevice, castClientListener);
 		apiClient = new GoogleApiClient.Builder(downloadService)
-				.addApi(Cast.API, apiOptionsBuilder.build())
+				.addApi(Cast.API, apiOptionsBuilder.setDebuggingEnabled().build())
 				.addConnectionCallbacks(connectionCallbacks)
 				.addOnConnectionFailedListener(connectionFailedListener)
 				.build();

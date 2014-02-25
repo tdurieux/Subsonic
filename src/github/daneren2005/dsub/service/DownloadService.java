@@ -1115,6 +1115,9 @@ public class DownloadService extends Service {
 	public boolean isRemoteEnabled() {
 		return remoteState != RemoteControlState.LOCAL;
 	}
+	public RemoteControlState getRemoteState() {
+		return remoteState;
+	}
 
 	public void setRemoteEnabled(RemoteControlState newState) {
 		if(instance != null) {
@@ -1144,6 +1147,17 @@ public class DownloadService extends Service {
 			setPlayerState(PlayerState.IDLE);
 			remoteController.shutdown();
 			remoteController = null;
+		}
+
+		// Remove videos from list after leaving ChromeCast state
+		if(newState != RemoteControlState.CHROMECAST) {
+			Iterator<DownloadFile> iterator = downloadList.iterator();
+			while (iterator.hasNext()) {
+				DownloadFile downloadFile = iterator.next();
+				if (downloadFile.getSong().isVideo()) {
+					iterator.remove();
+				}
+			}
 		}
 
 		remoteState = newState;
@@ -1231,7 +1245,7 @@ public class DownloadService extends Service {
 		bufferAndPlay(position, true);
 	}
 	private synchronized void bufferAndPlay(int position, boolean start) {
-		if(playerState != PREPARED) {
+		if(playerState != PREPARED && (currentPlaying == null || !currentPlaying.getSong().isVideo())) {
 			reset();
 
 			bufferTask = new BufferTask(currentPlaying, position, start);
@@ -1522,7 +1536,7 @@ public class DownloadService extends Service {
 		}
 
 		// Need to download current playing?
-		if (currentPlaying != null && currentPlaying != currentDownloading && !currentPlaying.isWorkDone()) {
+		if (currentPlaying != null && currentPlaying != currentDownloading && !currentPlaying.isWorkDone() && !currentPlaying.getSong().isVideo()) {
 			// Cancel current download, if necessary.
 			if (currentDownloading != null) {
 				currentDownloading.cancelDownload();
@@ -1548,7 +1562,7 @@ public class DownloadService extends Service {
 				int i = start;
 				do {
 					DownloadFile downloadFile = downloadList.get(i);
-					if (!downloadFile.isWorkDone() && !downloadFile.isFailedMax()) {
+					if (!downloadFile.isWorkDone() && !downloadFile.isFailedMax() && !downloadFile.getSong().isVideo()) {
 						if (downloadFile.shouldSave() || preloaded < Util.getPreloadCount(this)) {
 							currentDownloading = downloadFile;
 							currentDownloading.download();

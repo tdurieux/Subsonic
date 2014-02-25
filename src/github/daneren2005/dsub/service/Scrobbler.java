@@ -30,6 +30,11 @@ public class Scrobbler {
 			return;
 		}
 
+		// Ignore videos
+		if(song.getSong().isVideo()) {
+			return;
+		}
+
         final String id = song.getSong().getId();
 
         // Avoid duplicate registrations.
