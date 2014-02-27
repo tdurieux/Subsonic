@@ -1001,6 +1001,10 @@ public class SelectDirectoryFragment extends SubsonicFragment implements Adapter
 		});
 		imageLoader.loadImage(coverArtView, albumRep, false, true);
 
+		View backgroundView = rootView.findViewById(R.id.select_album_background);
+		backgroundView.setAlpha(0.20f);
+		imageLoader.loadImage(backgroundView, albumRep, false, true);
+
 		TextView titleView = (TextView) header.findViewById(R.id.select_album_title);
 		if(playlistName != null) {
 			titleView.setText(playlistName);
