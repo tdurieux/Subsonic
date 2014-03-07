@@ -1132,6 +1132,7 @@ public class DownloadService extends Service {
 				DownloadFile downloadFile = iterator.next();
 				if (downloadFile.getSong().isVideo()) {
 					iterator.remove();
+					revision++;
 				}
 			}
 		}
