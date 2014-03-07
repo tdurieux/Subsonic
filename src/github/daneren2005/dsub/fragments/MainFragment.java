@@ -344,7 +344,8 @@ public class MainFragment extends SubsonicFragment {
 				@Override
 				protected File doInBackground() throws Throwable {
 					updateProgress("Gathering Logs");
-					File logcat = new File(FileUtil.getSubsonicDirectory(), "logcat.txt");
+					File logcat = new File(FileUtil.getSubsonicDirectory(context), "logcat.txt");
+					Util.delete(logcat);
 					Process logcatProc = null;
 
 					try {
@@ -375,6 +376,7 @@ public class MainFragment extends SubsonicFragment {
 					String footer = "Android SDK: " + Build.VERSION.SDK;
 					footer += "\nDevice Model: " + Build.MODEL;
 					footer += "\nDevice Name: " + Build.MANUFACTURER + " "  + Build.PRODUCT;
+					footer += "\nROM: " + Build.DISPLAY;
 
 					Intent email = new Intent(android.content.Intent.ACTION_SEND);
 					email.setType("text/plain");

@@ -464,13 +464,10 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 			downloadService.setShufflePlayEnabled(true);
 		}
 
-		boolean visualizerAvailable = downloadService != null && downloadService.getVisualizerAvailable();
 		boolean equalizerAvailable = downloadService != null && downloadService.getEqualizerAvailable();
 
 		if (!equalizerAvailable) {
 			equalizerButton.setVisibility(View.GONE);
-		}
-		if (!visualizerAvailable) {
 			visualizerButton.setVisibility(View.GONE);
 		} else {
 			visualizerView = new VisualizerView(context);
@@ -501,7 +498,7 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 			}
 		}
 		if(downloadService != null && downloadService.getKeepScreenOn() && nowPlaying) {
-			menu.findItem(R.id.menu_screen_on_off).setTitle(R.string.download_menu_screen_off);
+			menu.findItem(R.id.menu_screen_on_off).setChecked(true);
 		}
 		if(downloadService != null) {
 			MenuItem mediaRouteItem = menu.findItem(R.id.menu_mediaroute);
@@ -543,6 +540,9 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 			if (downloadFile.getSong().getParent() == null) {
 				menu.findItem(R.id.menu_show_album).setVisible(false);
 			}
+			if (downloadFile.getSong().getGrandParent() == null) {
+				menu.findItem(R.id.menu_show_artist).setVisible(false);
+			}
 		}
 	}
 
@@ -559,27 +559,33 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 
 	private boolean menuItemSelected(int menuItemId, final DownloadFile song) {
 		switch (menuItemId) {
-			case R.id.menu_show_album:
+			case R.id.menu_show_album: case R.id.menu_show_artist:
 				MusicDirectory.Entry entry = song.getSong();
-				
+
 				Intent intent = new Intent(context, SubsonicFragmentActivity.class);
 				intent.putExtra(Constants.INTENT_EXTRA_VIEW_ALBUM, true);
-				if(Util.isTagBrowsing(context)) {
-					intent.putExtra(Constants.INTENT_EXTRA_NAME_ID, entry.getAlbumId());
+				String albumId;
+				String albumName;
+				if(menuItemId == R.id.menu_show_album) {
+					if(Util.isTagBrowsing(context)) {
+						albumId = entry.getAlbumId();
+					} else {
+						albumId = entry.getParent();
+					}
+					albumName = entry.getAlbum();
 				} else {
-					intent.putExtra(Constants.INTENT_EXTRA_NAME_ID, entry.getParent());
+					if(Util.isTagBrowsing(context)) {
+						albumId = entry.getArtistId();
+					} else {
+						albumId = entry.getGrandParent();
+					}
+					albumName = entry.getArtist();
+					intent.putExtra(Constants.INTENT_EXTRA_NAME_ARTIST, true);
 				}
-				intent.putExtra(Constants.INTENT_EXTRA_NAME_NAME, entry.getAlbum());
+				intent.putExtra(Constants.INTENT_EXTRA_NAME_ID, albumId);
+				intent.putExtra(Constants.INTENT_EXTRA_NAME_NAME, albumName);
 				intent.putExtra(Constants.INTENT_EXTRA_FRAGMENT_TYPE, "Artist");
-				
-				if(entry.getGrandParent() != null) {
-					intent.putExtra(Constants.INTENT_EXTRA_NAME_PARENT_ID, entry.getGrandParent());
-					intent.putExtra(Constants.INTENT_EXTRA_NAME_PARENT_NAME, entry.getArtist());
-				} else if(Util.isTagBrowsing(context)) {
-					intent.putExtra(Constants.INTENT_EXTRA_NAME_PARENT_ID, entry.getArtistId());
-					intent.putExtra(Constants.INTENT_EXTRA_NAME_PARENT_NAME, entry.getArtist());
-				}
-				
+
 				if(Util.isOffline(context)) {
 					try {
 						// This should only be succesful if this is a online song in offline mode
@@ -595,7 +601,7 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 						// Do nothing, entry.getParent() is fine
 					}
 				}
-				
+
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				Util.startActivityWithoutTransition(context, intent);
 				return true;

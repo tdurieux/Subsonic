@@ -241,9 +241,9 @@ public class CacheCleaner {
 		protected Void doInBackground() {
 			try {
 				String server = Util.getServerName(context);
-				SortedSet<File> playlistFiles = FileUtil.listFiles(FileUtil.getPlaylistDirectory(server));
+				SortedSet<File> playlistFiles = FileUtil.listFiles(FileUtil.getPlaylistDirectory(context, server));
 				for (Playlist playlist : playlists) {
-					playlistFiles.remove(FileUtil.getPlaylistFile(server, playlist.getName()));
+					playlistFiles.remove(FileUtil.getPlaylistFile(context, server, playlist.getName()));
 				}
 
 				for(File playlist : playlistFiles) {

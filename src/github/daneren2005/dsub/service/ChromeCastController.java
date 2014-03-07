@@ -245,7 +245,6 @@ public class ChromeCastController extends RemoteController {
 				}
 
 				url = fixURLs(url);
-				Log.i(TAG, "Cast url: " + url);
 			}
 
 			// Setup song/video information
@@ -271,7 +270,6 @@ public class ChromeCastController extends RemoteController {
 						meta.addImage(new WebImage(Uri.parse(coverArt)));
 					}
 				}
-				Log.i(TAG, "Cover art: " + coverArt);
 			}
 
 			String contentType;
@@ -412,7 +410,10 @@ public class ChromeCastController extends RemoteController {
 								downloadService.next();
 							} else if(mediaStatus.getIdleReason() == MediaStatus.IDLE_REASON_INTERRUPTED) {
 								downloadService.setPlayerState(PlayerState.PREPARING);
+							} else if(mediaStatus.getIdleReason() == MediaStatus.IDLE_REASON_ERROR) {
+								startSong(downloadService.getCurrentPlaying(), downloadService.getPlayerState() == PlayerState.STARTED, 0);
 							} else {
+								Log.w(TAG, "Idle reason: " + mediaStatus.getIdleReason());
 								downloadService.setPlayerState(PlayerState.IDLE);
 							}
 							break;

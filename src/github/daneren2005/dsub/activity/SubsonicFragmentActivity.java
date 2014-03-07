@@ -35,6 +35,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -100,6 +101,10 @@ public class SubsonicFragmentActivity extends SubsonicActivity {
 
 		if (findViewById(R.id.fragment_container) != null && savedInstanceState == null) {
 			String fragmentType = getIntent().getStringExtra(Constants.INTENT_EXTRA_FRAGMENT_TYPE);
+			if(fragmentType == null && Util.isOpenToLibrary(this)) {
+				fragmentType = "Artist";
+				lastSelectedPosition = 1;
+			}
 			currentFragment = getNewFragment(fragmentType);
 			
 			if("".equals(fragmentType) || fragmentType == null) {
@@ -261,17 +266,6 @@ public class SubsonicFragmentActivity extends SubsonicActivity {
 		};
 
 		if(getIntent().hasExtra(Constants.INTENT_EXTRA_VIEW_ALBUM)) {
-			if(getIntent().hasExtra(Constants.INTENT_EXTRA_NAME_PARENT_ID)) {
-				SelectDirectoryFragment fragment = new SelectDirectoryFragment();
-				Bundle args = new Bundle();
-				args.putString(Constants.INTENT_EXTRA_NAME_ID, getIntent().getStringExtra(Constants.INTENT_EXTRA_NAME_PARENT_ID));
-				args.putString(Constants.INTENT_EXTRA_NAME_NAME, getIntent().getStringExtra(Constants.INTENT_EXTRA_NAME_PARENT_NAME));
-				args.putBoolean(Constants.INTENT_EXTRA_NAME_ARTIST, true);
-				fragment.setArguments(args);
-
-				replaceFragment(fragment, currentFragment.getSupportTag());
-			}
-
 			SubsonicFragment fragment = new SelectDirectoryFragment();
 			Bundle args = new Bundle();
 			args.putString(Constants.INTENT_EXTRA_NAME_ID, getIntent().getStringExtra(Constants.INTENT_EXTRA_NAME_ID));
@@ -434,9 +428,14 @@ public class SubsonicFragmentActivity extends SubsonicActivity {
 		PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 		SharedPreferences prefs = Util.getPreferences(this);
 		if (!prefs.contains(Constants.PREFERENCES_KEY_CACHE_LOCATION)) {
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString(Constants.PREFERENCES_KEY_CACHE_LOCATION, FileUtil.getDefaultMusicDirectory().getPath());
-			editor.commit();
+			resetCacheLocation(prefs);
+		} else {
+			String path = prefs.getString(Constants.PREFERENCES_KEY_CACHE_LOCATION, null);
+			File cacheLocation = new File(path);
+			if(!FileUtil.verifyCanWrite(cacheLocation)) {
+				resetCacheLocation(prefs);
+				Util.info(this, R.string.common_warning, R.string.settings_cache_location_reset);
+			}
 		}
 
 		if (!prefs.contains(Constants.PREFERENCES_KEY_OFFLINE)) {
@@ -455,6 +454,12 @@ public class SubsonicFragmentActivity extends SubsonicActivity {
 			editor.putInt(Constants.PREFERENCES_KEY_SERVER_COUNT, 3);
 			editor.commit();
 		}
+	}
+
+	private void resetCacheLocation(SharedPreferences prefs) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putString(Constants.PREFERENCES_KEY_CACHE_LOCATION, FileUtil.getDefaultMusicDirectory(this).getPath());
+		editor.commit();
 	}
 
 	private void createAccount() {
@@ -495,7 +500,6 @@ public class SubsonicFragmentActivity extends SubsonicActivity {
 	private void showInfoDialog() {
 		if (!infoDialogDisplayed) {
 			infoDialogDisplayed = true;
-			Log.i(TAG, Util.getRestUrl(this, null));
 			if (Util.getRestUrl(this, null).contains("demo.subsonic.org")) {
 				Util.info(this, R.string.main_welcome_title, R.string.main_welcome_text);
 			}

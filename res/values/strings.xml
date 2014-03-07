@@ -5,10 +5,10 @@
     <string name="common.ok">OK</string>
     <string name="common.save">Save</string>
     <string name="common.cancel">Cancel</string>
-    <string name="common.play_now">Play now</string>
-	<string name="common.play_shuffled">Play shuffled</string>
-    <string name="common.play_next">Play next</string>
-    <string name="common.play_last">Play last</string>
+    <string name="common.play_now">Play Now</string>
+	<string name="common.play_shuffled">Play Shuffled</string>
+    <string name="common.play_next">Play Next</string>
+    <string name="common.play_last">Play Last</string>
 	<string name="common.download">Cache</string>
     <string name="common.pin">Permanent Cache</string>
     <string name="common.delete">Delete</string>
@@ -23,6 +23,7 @@
 	<string name="common.confirm">Confirm</string>
 	<string name="common.confirm_message">Do you want to %1$s %2$s?</string>
 	<string name="common.empty">None found</string>
+	<string name="common.warning">Warning</string>
 
     <string name="button_bar.home">Home</string>
     <string name="button_bar.browse">Library</string>
@@ -161,7 +162,6 @@
     <string name="download.menu_remove">Remove from queue</string>
     <string name="download.menu_remove_all">Remove all</string>
     <string name="download.menu_screen_on">Screen on</string>
-    <string name="download.menu_screen_off">Screen off</string>
     <string name="download.menu_shuffle">Shuffle</string>
 	<string name="download.menu_toggle">Toggle</string>
     <string name="download.menu_save">Save playlist</string>
@@ -255,6 +255,7 @@
     <string name="settings.cache_size">Cache size (MB)</string>
     <string name="settings.cache_location">Cache location</string>
     <string name="settings.cache_location_error">Invalid cache location. Using default.</string>
+    <string name="settings.cache_location_reset">The cache location you have set is no longer writable. If you recently upgraded your phone OS to KitKat 4.4, then the way apps write to the SD Card has changed so that they can only write to a specific location.  The location that DSub uses has already been automatically changed to the correct location.  In order to delete all of the old app data, you will need to mount the SD Card on your computer and delete the old folder manually</string>
 	<string name="settings.cache_clear">Clear Cache</string>
 	<string name="settings.cache_clear_complete">Finished clearing cache</string>
     <string name="settings.testing_connection">Testing connection...</string>
@@ -275,6 +276,8 @@
 	<string name="settings.track_summary">Display Track # in front of songs if one exists</string>
 	<string name="settings.custom_sort">Custom Sort</string>
 	<string name="settings.custom_sort_summary">Override default server sorting to sort by disc number and by year.</string>
+	<string name="settings.open_to_library">Open To Library</string>
+	<string name="settings.open_to_library_summary">Open directly to the library screen instead of opening to home.</string>
     <string name="settings.network_title">Network</string>
     <string name="settings.max_bitrate_wifi">Max Audio bitrate - Wi-Fi</string>
     <string name="settings.max_bitrate_mobile">Max Audio bitrate - Mobile</string>
@@ -449,6 +452,10 @@
     <string name="equalizer.label">Equalizer</string>
     <string name="equalizer.enabled">Enabled</string>
     <string name="equalizer.preset">Select preset</string>
+	<string name="equalizer.bass_booster">Bass Booster</string>
+	<string name="equalizer.voice_booster">Voice Booster</string>
+	<string name="equalizer.db_size">%d dB</string>
+	<string name="equalizer.bass_size">%d mille</string>
 
 	<string name="widget.4x1">DSub (4x1)</string>
 	<string name="widget.4x2">DSub (4x2)</string>

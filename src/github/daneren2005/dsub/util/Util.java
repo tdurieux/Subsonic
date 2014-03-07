@@ -55,6 +55,7 @@ import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 import github.daneren2005.dsub.R;
+import github.daneren2005.dsub.activity.SubsonicActivity;
 import github.daneren2005.dsub.activity.SubsonicFragmentActivity;
 import github.daneren2005.dsub.domain.MusicDirectory;
 import github.daneren2005.dsub.domain.PlayerState;
@@ -392,7 +393,12 @@ public final class Util {
 		SharedPreferences prefs = getPreferences(context);
 		return prefs.getBoolean(Constants.PREFERENCES_KEY_BROWSE_TAGS + instance, false);
 	}
-	
+
+	public static boolean isOpenToLibrary(Context context) {
+		SharedPreferences prefs = getPreferences(context);
+		return prefs.getBoolean(Constants.PREFERENCES_KEY_OPEN_TO_LIBRARY, false);
+	}
+
 	public static String getVideoPlayerType(Context context) {
 		SharedPreferences prefs = getPreferences(context);
 		return prefs.getString(Constants.PREFERENCES_KEY_VIDEO_PLAYER, "raw"); 
@@ -1008,8 +1014,11 @@ public final class Util {
     
      // Set the album art.
         try {
-            int size = context.getResources().getDrawable(R.drawable.unknown_album).getIntrinsicHeight();
-            Bitmap bitmap = FileUtil.getAlbumArtBitmap(context, song, size);
+			ImageLoader imageLoader = SubsonicActivity.getStaticImageLoader(context);
+			Bitmap bitmap = null;
+			if(imageLoader != null) {
+				bitmap = imageLoader.getCachedImage(context, song, false);
+			}
             if (bitmap == null) {
              // set default album art
              rv.setImageViewResource(R.id.notification_image, R.drawable.unknown_album);
