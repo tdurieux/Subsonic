@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.MediaRouteButton;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -380,13 +381,16 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 			}
 		});
 
-		toggleListButton.setOnClickListener(new View.OnClickListener() {
+		View.OnClickListener toggleListener = new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				toggleFullscreenAlbumArt();
 				setControlsVisible(true);
 			}
-		});
+		};
+
+		toggleListButton.setOnClickListener(toggleListener);
+		albumArtImageView.setOnClickListener(toggleListener);
 
 		progressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -539,9 +543,15 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 
 			if (downloadFile.getSong().getParent() == null) {
 				menu.findItem(R.id.menu_show_album).setVisible(false);
-			}
-			if (downloadFile.getSong().getGrandParent() == null) {
 				menu.findItem(R.id.menu_show_artist).setVisible(false);
+			}
+
+			SharedPreferences prefs = Util.getPreferences(context);
+			if(!prefs.getBoolean(Constants.PREFERENCES_KEY_MENU_STAR, true)) {
+				menu.setGroupVisible(R.id.hide_star, false);
+			}
+			if(!prefs.getBoolean(Constants.PREFERENCES_KEY_MENU_SHARED, true)) {
+				menu.setGroupVisible(R.id.hide_share, false);
 			}
 		}
 	}
@@ -578,6 +588,9 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 						albumId = entry.getArtistId();
 					} else {
 						albumId = entry.getGrandParent();
+						if(albumId == null) {
+							intent.putExtra(Constants.INTENT_EXTRA_NAME_CHILD_ID, entry.getParent());
+						}
 					}
 					albumName = entry.getArtist();
 					intent.putExtra(Constants.INTENT_EXTRA_NAME_ARTIST, true);
@@ -588,15 +601,20 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 
 				if(Util.isOffline(context)) {
 					try {
-						// This should only be succesful if this is a online song in offline mode
+						// This should only be successful if this is a online song in offline mode
 						Integer.parseInt(entry.getParent());
 						String root = FileUtil.getMusicDirectory(context).getPath();
 						String id = root + "/" + entry.getPath();
 						id = id.substring(0, id.lastIndexOf("/"));
-						intent.putExtra(Constants.INTENT_EXTRA_NAME_ID, id);
+						if(menuItemId == R.id.menu_show_album) {
+							intent.putExtra(Constants.INTENT_EXTRA_NAME_ID, id);
+						}
 						id = id.substring(0, id.lastIndexOf("/"));
-						intent.putExtra(Constants.INTENT_EXTRA_NAME_PARENT_ID, id);
-						intent.putExtra(Constants.INTENT_EXTRA_NAME_PARENT_NAME, entry.getArtist());
+						if(menuItemId != R.id.menu_show_album) {
+							intent.putExtra(Constants.INTENT_EXTRA_NAME_ID, id);
+							intent.putExtra(Constants.INTENT_EXTRA_NAME_NAME, entry.getArtist());
+							intent.removeExtra(Constants.INTENT_EXTRA_NAME_CHILD_ID);
+						}
 					} catch(Exception e) {
 						// Do nothing, entry.getParent() is fine
 					}
@@ -712,6 +730,10 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 			case R.id.menu_info:
 				displaySongInfo(song.getSong());
 				return true;
+			case R.id.menu_share:
+				songs = new ArrayList<MusicDirectory.Entry>(1);
+				songs.add(song.getSong());
+				createShare(songs);
 			default:
 				return false;
 		}
@@ -1148,7 +1170,7 @@ public class DownloadFragment extends SubsonicFragment implements OnGestureListe
 					if(!seekInProgress) {
 						progressBar.setProgress(millisPlayed);
 					}
-					progressBar.setEnabled(currentPlaying.isWorkDone() || isJukeboxEnabled);
+					progressBar.setEnabled((currentPlaying.isWorkDone() || isJukeboxEnabled) && playerState != PlayerState.PREPARING);
 				} else {
 					positionTextView.setText("0:00");
 					durationTextView.setText("-:--");

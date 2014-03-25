@@ -273,9 +273,12 @@ public class SubsonicFragmentActivity extends SubsonicActivity {
 			if(getIntent().hasExtra(Constants.INTENT_EXTRA_NAME_ARTIST)) {
 				args.putBoolean(Constants.INTENT_EXTRA_NAME_ARTIST, true);
 			}
+			if(getIntent().hasExtra(Constants.INTENT_EXTRA_NAME_CHILD_ID)) {
+				args.putString(Constants.INTENT_EXTRA_NAME_CHILD_ID, getIntent().getStringExtra(Constants.INTENT_EXTRA_NAME_CHILD_ID));
+			}
 			fragment.setArguments(args);
 
-			replaceFragment(fragment, currentFragment.getSupportTag());
+			replaceFragment(fragment, fragment.getSupportTag());
 			getIntent().removeExtra(Constants.INTENT_EXTRA_VIEW_ALBUM);
 			if("Artist".equals(getIntent().getStringExtra(Constants.INTENT_EXTRA_FRAGMENT_TYPE))) {
 				lastSelectedPosition = 1;
