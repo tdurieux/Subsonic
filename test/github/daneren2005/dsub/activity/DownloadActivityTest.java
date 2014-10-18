@@ -19,6 +19,9 @@ public class DownloadActivityTest extends
 	    activity = getActivity();
 	}
 
+	/**
+	 * Test the main layout.
+	 */
 	public void testLayout() {
 		View view = activity.findViewById(R.layout.download_activity);
 		assertNotNull(view);
